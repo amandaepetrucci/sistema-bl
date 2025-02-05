@@ -1,0 +1,40 @@
+{
+  "representadas": [
+    {
+      "cod": "1",
+      "prefixo_invoice": "tst",
+      "nome": "teste",
+      "moeda": "Real",
+      "simbolo": "R$",
+      "crit_page": "",
+      "com_1": "1,00",
+      "com_2": "2,00",
+      "com_3": "3,00",
+      "bl_invoice": "Sim",
+      "aceita_cartao": "Não",
+      "contrato": "Sim",
+      "rep_contrato_validade": "Sim",
+      "rep_data_contrato_validade": "01/01/2027",
+      "rep_banking": "",
+      "rep_form_precos": "",
+      "rep_endereco": "Rua dos testes, 123",
+      "rep_ship_form": "",
+      "desc_resumida": "apenas uma descrição",
+      "desc_web": "descricao web",
+      "desc_completa": "descricao completa"
+    }
+  ],
+  "condicoes_pagamento": [
+    {
+      "condcod": "1",
+      "cond_desc": "descricao"
+    }
+  ],
+  "moedas_e_cambio": [
+    {
+      "mocod": "1",
+      "mo_nome": "Real",
+      "simbolo": "R$"
+    }
+  ]
+}

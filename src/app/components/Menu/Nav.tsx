@@ -1,44 +1,46 @@
+import { useState } from "react";
 import Link from "next/link";
-import { Dispatch, SetStateAction } from "react";
 
-interface NavProps {
-  visible: boolean;
-  setVisible: Dispatch<SetStateAction<boolean>>;
-}
+export default function Nav() {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-export default function Nav(props:NavProps){
-  const {visible, setVisible} = props;
-  return(
-    <div className=" flex relative">
-      <ul className={`${visible ? "w-full sm:w-64" : "w-0"} transition-width duration-500 flex flex-col font-bold h-screen pt-10 fixed left-0 bg-slate-700 items-center`}>
-        <li className={`${visible ? "flex" : "hidden"} text-slate-300 hover:text-slate-100 w-full sm:w-52 m-1 p-5`}>
-        <Link href={"/"} onClick={() => setVisible(!visible)}>Home</Link>
+  return (
+    <div className="flex w-full items-center justify-center">
+      <ul className="w-full flex font-bold bg-slate-700 items-center justify-center relative">
+        <li className="flex text-slate-300 hover:text-slate-100 w-full sm:w-52 m-1 p-5">
+          <Link href="/">Home</Link>
         </li>
-        <li className={`${visible ? "flex" : "hidden"} text-slate-300 hover:text-slate-100 w-full sm:w-52 m-1 p-5`}>
-          <Link href={"/arquivos-diversos"} onClick={() => setVisible(!visible)}>Arquivos Diversos</Link>
+        <li
+          className="relative flex text-slate-300 hover:text-slate-100 w-full sm:w-52 m-1 p-5 cursor-pointer"
+          onMouseEnter={() => setIsDropdownOpen(true)}
+          onMouseLeave={() => setIsDropdownOpen(false)}
+        >
+          Arquivos Diversos
+          {isDropdownOpen && (
+            <ul className="absolute top-full left-0 w-52 bg-slate-800 text-white shadow-lg">
+              <li className="p-2 hover:bg-slate-600">
+                <Link href="/arquivos-diversos/representadas">Representadas</Link>
+              </li>
+              <li className="p-2 hover:bg-slate-600">
+                <Link href="/arquivos-diversos/vendedores-e-representantes">Vendedores e Representantes</Link>
+              </li>
+              <li className="p-2 hover:bg-slate-600">
+                <Link href="/arquivos-diversos/moedas-e-cambio">Moedas e Câmbio</Link>
+              </li>
+              <li className="p-2 hover:bg-slate-600">
+                <Link href="/arquivos-diversos/condicoes-pagamento">Condições de Pagamento</Link>
+              </li>
+              <li className="p-2 hover:bg-slate-600">
+                <Link href="/arquivos-diversos/parametros-sistema">Parâmetros</Link>
+              </li>
+            </ul>
+          )}
         </li>
-        <li className={`${visible ? "flex" : "hidden"} text-slate-300 hover:text-slate-100 w-full sm:w-52 m-1 p-5`}>
-          Comercial
-        </li>
-        <li className={`${visible ? "flex" : "hidden"} text-slate-300 hover:text-slate-100 w-full sm:w-52 m-1 p-5`}>
-          Financeiro
-        </li>
-        <li className={`${visible ? "flex" : "hidden"} text-slate-300 hover:text-slate-100 w-full sm:w-52 m-1 p-5`}>
-          <Link href={"/catalogos/menu-catalogos"} onClick={() => setVisible(!visible)}>Catálogos</Link>
-        </li>
-        <li className={`${visible ? "flex" : "hidden"} text-slate-300 hover:text-slate-100 w-full sm:w-52 m-1 p-5`}>
-        <Link href={"/controle-consultas"} onClick={() => setVisible(!visible)}>Controle de Consultas</Link>
-        </li>
-        <li className={`${visible ? "flex" : "hidden"} text-slate-300 hover:text-slate-100 w-full sm:w-52 m-1 p-5`}>
-          Manutenção de Arquivos
-        </li>
-        <li className={`${visible ? "flex" : "hidden"} text-slate-300 hover:text-slate-100 w-full sm:w-52 m-1 p-5`}>
-          FAQ
-        </li>
-        <li className={`${visible ? "flex" : "hidden"} text-slate-300 hover:text-slate-100 w-full sm:w-52 m-1 p-5`}>
-          Sair
-        </li>
+        <li className="flex text-slate-300 hover:text-slate-100 w-full sm:w-52 m-1 p-5">Comercial</li>
+        <li className="flex text-slate-300 hover:text-slate-100 w-full sm:w-52 m-1 p-5">Financeiro</li>
+        <li className="flex text-slate-300 hover:text-slate-100 w-full sm:w-52 m-1 p-5">FAQ</li>
+        <li className="flex text-slate-300 hover:text-slate-100 w-full sm:w-52 m-1 p-5">Sair</li>
       </ul>
     </div>
-  )
+  );
 }
