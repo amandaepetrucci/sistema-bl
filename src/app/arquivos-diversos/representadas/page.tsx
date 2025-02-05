@@ -53,12 +53,13 @@ export default function Representadas() {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value, type, checked } = e.target as HTMLInputElement & HTMLSelectElement;
+    const { name, value, type } = e.target;
+    
     setFormData((prevData) => ({
-      ...prevData,
-      [name]: type === "checkbox" ? (checked ? true : false) : value,
+        ...prevData,
+        [name]: type === "checkbox" && "checked" in e.target ? (e.target as HTMLInputElement).checked : value,
     }));
-  };
+};
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
