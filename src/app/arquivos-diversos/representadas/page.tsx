@@ -47,6 +47,7 @@ export default function Representadas() {
   useEffect(() => {
     loadData()
     loadMoedas()
+    setCurrentPage(1)
   }, []);
 
   async function loadData() {
@@ -205,6 +206,7 @@ const [coinList, setCoinList] = useState([])
           pageSizeSelectOptions={{
             pageSizeOptions: [5, 10, 25, 50],
           }}
+          
       />
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} classProps="">
         <form onSubmit={handleAddNewData}>
