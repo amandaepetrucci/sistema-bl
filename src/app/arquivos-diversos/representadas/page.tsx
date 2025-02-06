@@ -13,7 +13,7 @@ type MoedasProps = {
 };
 
 type RepresentadasProps = {
-  rep_cod: string;
+  rep_cod: number;
   rep_preff_inv: string;
   rep_nome: string;
   moeda: string;
@@ -42,6 +42,7 @@ export default function Representadas() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [simbolo, setSimbolo] = useState('');
+  const [codValue, setCodeValue] = useState(0);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -53,7 +54,20 @@ export default function Representadas() {
   async function loadData() {
     const api = await fetch("https://sistemabl-novo.onrender.com/representadas");
     const apijson = await api.json();
-    setData(apijson);
+    let actualCode = 0
+    if(apijson.length > 0) {
+      actualCode = apijson[apijson.length-1].rep_cod
+      setData(apijson);
+      setCodeValue(++actualCode);
+    }else{
+      setCodeValue(++actualCode);
+    }
+
+    setFormData((prevData) => ({
+      ...prevData,
+      ["rep_cod"]: actualCode,
+    }))
+    
   }
 
   async function loadMoedas() {
@@ -82,7 +96,7 @@ export default function Representadas() {
   );
 
   const [formData, setFormData] = useState<RepresentadasProps>({
-    rep_cod: "",
+    rep_cod: codValue,
     rep_preff_inv: "",
     rep_nome: "",
     moeda: "",
@@ -221,7 +235,7 @@ const [coinList, setCoinList] = useState([])
                   id="rep_codTxt"
                   name="rep_cod"
                   type="text"
-                  onChange={handleChange}
+                  value={codValue}
                   readOnly={true}
                   className="bg-slate-200"
                 />

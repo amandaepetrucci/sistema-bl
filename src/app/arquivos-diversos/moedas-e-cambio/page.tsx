@@ -34,8 +34,9 @@ export default function MoedasCambio() {
   async function loadData() {
     const api = await fetch("https://sistemabl-novo.onrender.com/moedas/");
     const apijson = await api.json();
-    let actualCode = apijson[apijson.length-1].mo_cod
+    let actualCode = 0
     if(apijson.length > 0) {
+      actualCode = apijson[apijson.length-1].mo_cod
       setData(apijson);
       setCodeValue(++actualCode);
       setFormData((prevData) => ({
@@ -61,7 +62,7 @@ export default function MoedasCambio() {
       body: JSON.stringify(formData),
     });
 
-    if (response.status == 201) {
+    if (response.ok) {
       handleCloseModal();
       loadData();
     } else {
