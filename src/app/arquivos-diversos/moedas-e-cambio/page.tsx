@@ -32,8 +32,7 @@ export default function MoedasCambio() {
   }, []);
 
   async function loadData() {
-    console.log("Loading data");
-    const api = await fetch("http://localhost:8000/moedas/");
+    const api = await fetch("https://sistemabl-novo.onrender.com/moedas/");
     const apijson = await api.json();
     let actualCode = apijson[apijson.length-1].mo_cod
     if(apijson.length > 0) {
@@ -54,7 +53,7 @@ export default function MoedasCambio() {
 
   async function handleAddNewData(e: React.FormEvent) {
     e.preventDefault();
-    const response = await fetch("http://localhost:8000/moedas/", {
+    const response = await fetch("https://sistemabl-novo.onrender.com/moedas/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Modal from "@/app/components/Modal/Modal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -57,7 +57,7 @@ export default function Representadas() {
   }
 
   async function loadMoedas() {
-    const api = await fetch("http://localhost:8000/moedas");
+    const api = await fetch("https://sistemabl-novo.onrender.com/moedas");
     const apijson = await api.json();
     setCoinList(apijson);
   }
@@ -67,7 +67,7 @@ export default function Representadas() {
       setSimbolo('');
       return;
     }
-    const api = await fetch(`http://localhost:8000/moedas/${id}`);
+    const api = await fetch(`https://sistemabl-novo.onrender.com/moedas/${id}`);
     const apijson = await api.json();
     setSimbolo(apijson.simbolo);
   }
@@ -199,15 +199,17 @@ const [coinList, setCoinList] = useState([])
           ))}
         </TableBody>
       </Table>
-      <PaginationWithLinks
-          page={currentPage}
-          pageSize={itemsPerPage}
-          totalCount={filteredData.length}
-          pageSizeSelectOptions={{
-            pageSizeOptions: [5, 10, 25, 50],
-          }}
-          
-      />
+      <Suspense>
+        <PaginationWithLinks
+            page={currentPage}
+            pageSize={itemsPerPage}
+            totalCount={filteredData.length}
+            pageSizeSelectOptions={{
+              pageSizeOptions: [5, 10, 25, 50],
+            }}
+            
+        />
+      </Suspense>
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} classProps="">
         <form onSubmit={handleAddNewData}>
             <div className="flex p-4 w-full items-center justify-around">
