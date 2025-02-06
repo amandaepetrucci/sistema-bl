@@ -3,15 +3,15 @@ import Modal from "@/app/components/Modal/Modal";
 import { useEffect, useState } from "react";
 
 type MoedasProps = {
-  mocod: string;
+  mo_cod: number;
   mo_nome: string;
   simbolo: string;
 };
 export default function MoedasCambio() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [codValue, setCodeValue] = useState(0);
   const [formData, setFormData] = useState<MoedasProps>({
-    mocod: "",
+    mo_cod: codValue,
     mo_nome: "",
     simbolo: "",
   });
@@ -32,14 +32,29 @@ export default function MoedasCambio() {
   }, []);
 
   async function loadData() {
-    const api = await fetch("http://localhost:8000/moedas_e_cambio");
+    console.log("Loading data");
+    const api = await fetch("http://localhost:8000/moedas/");
     const apijson = await api.json();
-    setData(apijson);
+    let actualCode = apijson[apijson.length-1].mo_cod
+    if(apijson.length > 0) {
+      setData(apijson);
+      setCodeValue(++actualCode);
+      setFormData((prevData) => ({
+        ...prevData,
+        ["mo_cod"]: actualCode,
+      }))
+    } else {
+      setCodeValue(++actualCode);
+      setFormData((prevData) => ({
+        ...prevData,
+        ["mo_cod"]: actualCode,
+      }))
+    }
   }
 
   async function handleAddNewData(e: React.FormEvent) {
     e.preventDefault();
-    const response = await fetch("http://localhost:8000/moedas_e_cambio", {
+    const response = await fetch("http://localhost:8000/moedas/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -78,20 +93,21 @@ export default function MoedasCambio() {
               <div className="flex p-4 w-full justify-around flex-col space-y-4">
                 <div>
                   <label className="ml-2 mr-2" htmlFor="vendCodTxt">
-                    Mo Cod.
+                    Cod.
                   </label>
                   <input
                     id="moCodTxt"
                     type="text"
-                    name="mocod"
-                    className="rounded-sm w-16"
-                    value={formData.mocod}
+                    name="mo_cod"
+                    className="rounded-sm w-16 bg-slate-200"
+                    value={codValue}
                     onChange={handleChange}
+                    readOnly={true}
                   />
                 </div>
                 <div>
                   <label className="ml-2 mr-2" htmlFor="vendNomeTxt">
-                    Mo_nome
+                    Nome
                   </label>
                   <input
                     type="text"
@@ -125,14 +141,14 @@ export default function MoedasCambio() {
             </form>
           </Modal>
           <div className="relative overflow-x-auto shadow-md sm:rounded-lg w-full p-2">
-            <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+            <table className="w-full text-sm text-center rtl:text-right text-gray-500 dark:text-gray-400">
               <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                   <th scope="col" className="px-6 py-3">
-                    Mo Cod.
+                    Cod.
                   </th>
                   <th scope="col" className="px-6 py-3">
-                    Mo Nome
+                    Nome
                   </th>
                   <th scope="col" className="px-6 py-3">
                     Simbolo
@@ -146,7 +162,7 @@ export default function MoedasCambio() {
                       className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700"
                       key={index}
                     >
-                      <td>{moedas.mocod}</td>
+                      <td>{moedas.mo_cod}</td>
                       <td>{moedas.mo_nome}</td>
                       <td>{moedas.simbolo}</td>
                     </tr>

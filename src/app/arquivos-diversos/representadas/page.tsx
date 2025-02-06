@@ -1,6 +1,16 @@
 "use client";
-import Modal from "@/app/components/Modal/Modal";
 import { useEffect, useState } from "react";
+import Modal from "@/app/components/Modal/Modal";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Table, TableHeader, TableBody, TableRow, TableCell } from "@/components/ui/table";
+import { PaginationWithLinks } from "@/components/ui/pagination-with-links";
+import {format} from 'date-fns'
+type MoedasProps = {
+  mo_cod: number;
+  mo_nome: string;
+  simbolo: string;
+};
 
 type RepresentadasProps = {
   rep_cod: string;
@@ -25,8 +35,50 @@ type RepresentadasProps = {
   repw: string;
   repc: string;
 };
+
 export default function Representadas() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [data, setData] = useState<RepresentadasProps[]>([]);
+  const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [simbolo, setSimbolo] = useState('');
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    loadData()
+    loadMoedas()
+  }, []);
+
+  async function loadData() {
+    const api = await fetch("https://sistemabl-novo.onrender.com/representadas");
+    const apijson = await api.json();
+    setData(apijson);
+  }
+
+  async function loadMoedas() {
+    const api = await fetch("http://localhost:8000/moedas");
+    const apijson = await api.json();
+    setCoinList(apijson);
+  }
+
+  async function loadCoin(id: number) {
+    if(id === 0){
+      setSimbolo('');
+      return;
+    }
+    const api = await fetch(`http://localhost:8000/moedas/${id}`);
+    const apijson = await api.json();
+    setSimbolo(apijson.simbolo);
+  }
+
+  const filteredData = data.filter((item) =>
+    item.rep_nome.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const [formData, setFormData] = useState<RepresentadasProps>({
     rep_cod: "",
@@ -61,241 +113,153 @@ export default function Representadas() {
     }));
 };
 
-  const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
-  const [data, setData] = useState([]);
-  useEffect(() => {
+async function handleAddNewData(e: React.FormEvent) {
+  e.preventDefault();
+  console.log("Dados enviados:", formData); // Verifique se os dados estão preenchidos corretamente
+
+  const response = await fetch("https://sistemabl-novo.onrender.com/representadas", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+  });
+
+  if (response.ok) {
+    setIsModalOpen(false)
     loadData();
-  }, []);
-
-  async function loadData() {
-    const api = await fetch("https://sistemabl-novo.onrender.com/representadas");
-    const apijson = await api.json();
-    setData(apijson);
+  } else {
+    console.error("Erro ao enviar dados!", await response.text());
   }
-
-  async function handleAddNewData(e: React.FormEvent) {
-    e.preventDefault();
-    console.log("Dados enviados:", formData); // Verifique se os dados estão preenchidos corretamente
-  
-    const response = await fetch("https://sistemabl-novo.onrender.com/representadas", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
-  
-    if (response.ok) {
-      handleCloseModal();
-      loadData();
-    } else {
-      console.error("Erro ao enviar dados!", await response.text());
-    }
-  }
+}
+const [coinList, setCoinList] = useState([])
   return (
-    <>
-      <div className="flex items-end justify-end w-full">
-        <button
-          onClick={handleOpenModal}
-          className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700 mr-4 mt-2"
-        >
-          Inserir
-        </button>
+    <div className="p-4">
+      <div className=" flex py-4 justify-between">
+        <label className="text-2xl font-semibold">Representadas</label>
+        <Button className="bg-slate-700" onClick={() => setIsModalOpen(true)}>Inserir</Button>
       </div>
-
-      <div className="h-auto bg-slate-200 flex items-center flex-col pt-4 border-slate-300 border-2 justify-center mt-10">
-        <span className="font-bold">Representadas</span>
-        <div className="mt-2 p-4">
-          <table className="w-full text-sm text-center rtl:text-right text-gray-500 dark:text-gray-400">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-              <tr>
-                <th scope="col" className="px-6 py-3">
-                  Rep rep_nome
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Moeda
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Simbolo
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Rep Com 1
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Rep Com 2
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Rep Com 3
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Rep Crit Page
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Rep tem contrato
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((representadas: RepresentadasProps, index: number) => {
-                return (
-                  <tr
-                    className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700"
-                    key={index}
-                  >
-                    <td>{representadas.rep_nome}</td>
-                    <td>{representadas.moeda}</td>
-                    <td>{representadas.simbolo}</td>
-                    <td>{representadas.rep_com1}</td>
-                    <td>{representadas.rep_com2}</td>
-                    <td>{representadas.rep_com3}</td>
-                    <td>{representadas.rep_crit_page}</td>
-                    <td>{representadas.rep_tem_contrato}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <hr className="mt-2 mb-2 bg-slate-300 w-full h-[2px]" />
-
-          <table className="w-full text-sm text-center rtl:text-right text-gray-500 dark:text-gray-400">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-              <tr>
-                <th scope="col" className="px-6 py-3">
-                  Rep contr tem validade
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Rep dat venc contrat
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Rep banking
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Rep form preços
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Rep endereço
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Rep pref inv
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Bl emite invoice
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Rep ship form
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((representadas: RepresentadasProps, index: number) => {
-                return (
-                  <tr
-                    className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700"
-                    key={index}
-                  >
-                    <td>{representadas.rep_contr_tem_validade}</td>
-                    <td>{representadas.rep_dat_venc_contr.toString()}</td>
-                    <td>{representadas.rep_banking}</td>
-                    <td>{representadas.rep_form_precos}</td>
-                    <td>{representadas.rep_endereco}</td>
-                    <td>{representadas.rep_preff_inv}</td>
-                    <td>{representadas.bl_emite_invoice}</td>
-                    <td>{representadas.rep_ship_form}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <hr className="mt-2 mb-2 bg-slate-300 w-full h-[2px]" />
-
-          <table className="w-full text-sm text-center rtl:text-right text-gray-500 dark:text-gray-400 ali">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-              <tr>
-                <th scope="col" className="px-6 py-3">
-                  Aceita cartão
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Repr
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Repw
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Repc
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Re logo
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((representadas: RepresentadasProps, index: number) => {
-                return (
-                  <tr
-                    className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700"
-                    key={index}
-                  >
-                    <td>{representadas.aeitacarta}</td>
-                    <td>{representadas.repr}</td>
-                    <td>{representadas.repw}</td>
-                    <td>{representadas.repc}</td>
-                    <td></td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <Modal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          classProps="h-screen"
-        >
-          <form onSubmit={handleAddNewData}>
+      <div className="flex justify-between items-center mb-4">
+        <Input
+          placeholder="Buscar Representada..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+      <Table className="w-full">
+        <TableHeader className="whitespace-nowrap bg-slate-700 text-gray-200">
+          <TableRow>
+            <TableCell>Nome</TableCell>
+            <TableCell>Moeda</TableCell>
+            <TableCell>Simbolo</TableCell>
+            <TableCell>Comissão 1</TableCell>
+            <TableCell>Comissão 2</TableCell>
+            <TableCell>Comissão 3</TableCell>
+            <TableCell>Crit Page</TableCell>
+            <TableCell>Tem Contrato</TableCell>
+            <TableCell>Contrato Tem Validade</TableCell>
+            <TableCell>Data Vencimento do Contrato</TableCell>
+            <TableCell>Banking</TableCell>
+            <TableCell>Preços</TableCell>
+            <TableCell>Endereço</TableCell>
+            <TableCell>Pref Invoice</TableCell>
+            <TableCell>Bl Emite Invoice</TableCell>
+            <TableCell>Ship Form</TableCell>
+            <TableCell>Aceita Cartão</TableCell>
+            <TableCell>Descrição Resumida</TableCell>
+            <TableCell>Descrição Website</TableCell>
+            <TableCell>Descrição Completa</TableCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {paginatedData.map((item, index) => (
+            <TableRow key={index}>
+              <TableCell>{item.rep_nome}</TableCell>
+              <TableCell>{item.moeda}</TableCell>
+              <TableCell>{item.simbolo}</TableCell>
+              <TableCell>{item.rep_com1}</TableCell>
+              <TableCell>{item.rep_com2}</TableCell>
+              <TableCell>{item.rep_com3}</TableCell>
+              <TableCell>{item.rep_crit_page}</TableCell>
+              <TableCell>{item.rep_tem_contrato}</TableCell>
+              <TableCell>{item.rep_contr_tem_validade}</TableCell>
+              <TableCell>{format(item.rep_dat_venc_contr, "dd/MM/yyyy")}</TableCell>
+              <TableCell>{item.rep_banking}</TableCell>
+              <TableCell>{item.rep_form_precos}</TableCell>
+              <TableCell>{item.rep_endereco}</TableCell>
+              <TableCell>{item.rep_preff_inv}</TableCell>
+              <TableCell>{item.bl_emite_invoice}</TableCell>
+              <TableCell>{item.rep_ship_form}</TableCell>
+              <TableCell>{item.aeitacarta}</TableCell>
+              <TableCell>{item.repr}</TableCell>
+              <TableCell>{item.repw}</TableCell>
+              <TableCell>{item.repc}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <PaginationWithLinks
+          page={currentPage}
+          pageSize={itemsPerPage}
+          totalCount={filteredData.length}
+          pageSizeSelectOptions={{
+            pageSizeOptions: [5, 10, 25, 50],
+          }}
+      />
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} classProps="">
+        <form onSubmit={handleAddNewData}>
             <div className="flex p-4 w-full items-center justify-around">
               <div>
                 <label className="mr-2" htmlFor="rep_codTxt">
-                  rep_cod.
+                  Cod
                 </label>
-                <input
+                <Input
                   id="rep_codTxt"
                   name="rep_cod"
                   type="text"
-                  className="rounded-sm"
                   onChange={handleChange}
+                  readOnly={true}
+                  className="bg-slate-200"
                 />
               </div>
               <div>
                 <label className="ml-2 mr-2" htmlFor="dtInclusao">
                   Prefixo Invoice
                 </label>
-                <input
+                <Input
                   type="text"
                   name="rep_preff_inv"
                   id="prefixoInvoicesTxt"
-                  className="rounded-sm w-16"
                   onChange={handleChange}
                 />
               </div>
             </div>
             <div className="flex px-16 py-4 w-full items-center justify-around">
               <label htmlFor="nameTxt" className="mr-4">
-                rep_nome:{" "}
+                Nome:{" "}
               </label>
-              <input type="text" id="nameTxt" name="rep_nome" className="w-full" onChange={handleChange}/>
+              <Input type="text" id="nameTxt" name="rep_nome" onChange={handleChange}/>
             </div>
             <div className="flex px-16 py-4 w-full items-center justify-around">
               <label htmlFor="coinSelect" className="mr-3">
                 Moeda:{" "}
               </label>
-              <select id="coinSelect" name="moeda" className="w-full h-6" />
+              <select id="coinSelect" name="moeda" className="w-full h-6" onChange={e => loadCoin(Number(e.target.value))}>
+                    <option value={"0"}>
+                      Selecione
+                    </option>
+                  {coinList.map((option: MoedasProps) => (
+                    <option key={option.mo_cod} value={option.mo_cod}>
+                      {option.mo_nome}
+                    </option>
+                  ))}
+              </select>
             </div>
             <div className="flex px-16 py-4 w-full items-center justify-around">
               <label htmlFor="symbolTxt" className="mr-1">
                 Simbolo:{" "}
               </label>
-              <input type="text" id="symbolTxt" name="simbolo" className="flex-1 h-6" onChange={handleChange}/>
+              <Input type="text" id="symbolTxt" name="simbolo" className="flex-1 h-6" value={simbolo} readOnly/>
               <label htmlFor="critPageSelect" className="mr-1 ml-2">
                 Crit Pag:{" "}
               </label>
@@ -306,7 +270,7 @@ export default function Representadas() {
                 <label className="ml-2 mr-2" htmlFor="comOne">
                   Com 1:
                 </label>
-                <input
+                <Input
                   type="text"
                   name="rep_com1"
                   id="comOne"
@@ -318,7 +282,7 @@ export default function Representadas() {
                 <label className="ml-2 mr-2" htmlFor="comTwo">
                   Com 2:
                 </label>
-                <input
+                <Input
                   type="text"
                   name="rep_com2"
                   id="comTwo"
@@ -330,7 +294,7 @@ export default function Representadas() {
                 <label className="ml-2 mr-2" htmlFor="dtInclusao">
                   Com 3:
                 </label>
-                <input
+                <Input
                   type="text"
                   name="rep_com3"
                   id="comThree"
@@ -359,6 +323,7 @@ export default function Representadas() {
                   name="aeitacarta"
                   id="acceptCreditCard"
                   className="rounded-sm"
+                  checked={formData.aeitacarta}
                   onChange={handleChange}
                 />
                 <label className="ml-2 mr-2" htmlFor="comTwo">
@@ -373,6 +338,7 @@ export default function Representadas() {
                 name="rep_tem_contrato"
                 id="haveContract"
                 className="rounded-sm"
+                checked={formData.rep_tem_contrato}
                 onChange={handleChange}
               />
               <label className="ml-2 mr-2" htmlFor="comTwo">
@@ -399,8 +365,7 @@ export default function Representadas() {
               </button>
             </div>
           </form>
-        </Modal>
-      </div>
-    </>
+      </Modal>
+    </div>
   );
 }

@@ -3,7 +3,7 @@ import Nav from "./Nav";
 
 export default function Menu(){
   return(
-    <nav>
+    <nav className="bg-slate-700 w-full">
       <Nav/>
     </nav>
   )
